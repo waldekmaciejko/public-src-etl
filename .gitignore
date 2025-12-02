@@ -1,3 +1,10 @@
+# airflow
+plugins/
+logs/
+include/
+dags/
+config/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -14,6 +21,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+logs/
 lib/
 lib64/
 parts/

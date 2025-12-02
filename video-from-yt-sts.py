@@ -1,10 +1,11 @@
 from logging import raiseExceptions
+from numpy import save
 import requests
 import json
 from dotenv import load_dotenv
 import os
-
-from streamlit import video
+from datetime import date 
+#from streamlit import video
 
 
 def get_playlist_id(channelHandle: str,
@@ -122,26 +123,35 @@ def extract_video_data(video_ids,
     except requests.exceptions.RequestException as e:
         raise e 
 
+def save_to_json(extrated_data):
+
+    file_path = f"./data/yt_src_{date.today()}.json"
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(extrated_data, f, indent=4, ensure_ascii=False)
+
+
 
 if __name__ == "__main__":
 
     load_dotenv(override=True, verbose=True, dotenv_path=".env")
     api_key = os.getenv("API_KEY")
 
-    CHANNEL_HANDLE = "realAndromeda"
+    #CHANNEL_HANDLE = "realAndromeda"
+    channel_handel = "MrBeast"
 
-    playlistID = get_playlist_id(channelHandle=CHANNEL_HANDLE, 
+    playlistID = get_playlist_id(channelHandle=channel_handel, 
                                  api_key=api_key)
 
     video_ids = get_video_ids(api_key=api_key,
                                 playlistID=playlistID,
                                 maxResults=5)
     
-    a = extract_video_data(video_ids=video_ids,
+    video_data = extract_video_data(video_ids=video_ids,
                            YOUR_API_KEY=api_key,
                            max_results=1)
 
-    print(a)
+    save_to_json(video_data)
 
 
 
