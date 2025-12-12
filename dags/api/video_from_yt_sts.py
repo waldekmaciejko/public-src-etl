@@ -2,18 +2,24 @@ from logging import raiseExceptions
 from numpy import save
 import requests
 import json
-from dotenv import load_dotenv
-import os
+# from dotenv import load_dotenv
+# import os
 from datetime import date 
+from airflow.decorators import task
+from airflow.models import Variable
 #from streamlit import video
 
+#load_dotenv(override=True, verbose=True, dotenv_path=".env")
+API_KEY = Variable.get("API_KEY")
 
-def get_playlist_id(channelHandle: str,
-                    api_key: str) -> str:
+#CHANNEL_HANDLE = "realAndromeda"
+CHANNEL_HANDLE = Variable.get("CHANNEL_HANDLE")
+
+@task
+def get_playlist_id() -> str:
     
-    CHANNEL_HANDLE = channelHandle
-    API_KEY = api_key
-
+    #CHANNEL_HANDLE = channelHandle
+    #API_KEY = api_key
     
     url = f"https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={CHANNEL_HANDLE}&key={API_KEY}"
     
@@ -30,20 +36,21 @@ def get_playlist_id(channelHandle: str,
         #print(channel_playlist)
 
         return channel_playlist
+        #return "UUX6OQ3DkcsbYNE6H8uQQuVA"
     
     except requests.exceptions.RequestException as e:
         
         raise e
 
-def get_video_ids(api_key: str,
-            playlistID: str = "", 
-            maxResults: int = 1) -> list:
+@task
+def get_video_ids(playlistID) -> list:
 
     # playlistID = "UCNApG5p0QfZcTNodHaLMCOQ"
     video_ids = []
     pageToken = None
+    maxResults = 10
 
-    base_url = f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults={maxResults}&playlistId={playlistID}&key={api_key}"
+    base_url = f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults={maxResults}&playlistId={playlistID}&key={API_KEY}"
 
     try:
 
@@ -73,17 +80,18 @@ def get_video_ids(api_key: str,
         raise e
     
 
-def batch_list(video_id_lst, batch_size):
-
-    for video_id in range(0, len(video_id_lst), batch_size):
-        yield video_id_lst[video_id:video_id + batch_size]
 
 
-def extract_video_data(video_ids,
-                       YOUR_API_KEY,
-                       max_results):
+@task
+def extract_video_data(video_ids):
+
+    def batch_list(video_id_lst, batch_size):
+
+        for video_id in range(0, len(video_id_lst), batch_size):
+            yield video_id_lst[video_id:video_id + batch_size]
 
     extracted_data = []
+    max_results = 10
 
     #batch_list(video_id_lst, batch_size)
 
@@ -95,7 +103,7 @@ def extract_video_data(video_ids,
 
             #print(video_ids_str)
 
-            url = f"https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&part=statistics&id={video_ids_str}&key={YOUR_API_KEY}"
+            url = f"https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&part=statistics&id={video_ids_str}&key={API_KEY}"
 
             response = requests.get(url)
             response.raise_for_status()
@@ -123,6 +131,7 @@ def extract_video_data(video_ids,
     except requests.exceptions.RequestException as e:
         raise e 
 
+@task
 def save_to_json(extrated_data):
 
     file_path = f"./data/yt_src_{date.today()}.json"
@@ -130,28 +139,32 @@ def save_to_json(extrated_data):
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(extrated_data, f, indent=4, ensure_ascii=False)
 
+    return file_path
+
 
 
 if __name__ == "__main__":
 
-    load_dotenv(override=True, verbose=True, dotenv_path=".env")
-    api_key = os.getenv("API_KEY")
+    print('ok')
 
-    #CHANNEL_HANDLE = "realAndromeda"
-    channel_handel = "MrBeast"
+    # load_dotenv(override=True, verbose=True, dotenv_path=".env")
+    # api_key = os.getenv("API_KEY")
 
-    playlistID = get_playlist_id(channelHandle=channel_handel, 
-                                 api_key=api_key)
+    # #CHANNEL_HANDLE = "realAndromeda"
+    # channel_handel = "MrBeast"
 
-    video_ids = get_video_ids(api_key=api_key,
-                                playlistID=playlistID,
-                                maxResults=5)
+    # playlistID = get_playlist_id(channelHandle=channel_handel, 
+    #                              api_key=api_key)
+
+    # video_ids = get_video_ids(api_key=api_key,
+    #                             playlistID=playlistID,
+    #                             maxResults=5)
     
-    video_data = extract_video_data(video_ids=video_ids,
-                           YOUR_API_KEY=api_key,
-                           max_results=1)
+    # video_data = extract_video_data(video_ids=video_ids,
+    #                        YOUR_API_KEY=api_key,
+    #                        max_results=1)
 
-    save_to_json(video_data)
+    # save_to_json(video_data)
 
 
 
