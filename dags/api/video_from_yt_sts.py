@@ -10,20 +10,27 @@ from airflow.models import Variable
 #from streamlit import video
 
 #load_dotenv(override=True, verbose=True, dotenv_path=".env")
-API_KEY = Variable.get("API_KEY")
 
 #CHANNEL_HANDLE = "realAndromeda"
+
+API_KEY = Variable.get("API_KEY")
 CHANNEL_HANDLE = Variable.get("CHANNEL_HANDLE")
+maxResults = 50
+
+import logging
+logger = logging.getLogger(__name__)
 
 @task
 def get_playlist_id() -> str:
     
     #CHANNEL_HANDLE = channelHandle
-    #API_KEY = api_key
-    
-    url = f"https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={CHANNEL_HANDLE}&key={API_KEY}"
-    
+    #API_KEY=""   
+    #CHANNEL_HANDLE="MrBeast"
+
+   
     try: 
+        url = f"https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={CHANNEL_HANDLE}&key={API_KEY}"
+
         response = requests.get(url)
 
         response.raise_for_status()
@@ -79,8 +86,6 @@ def get_video_ids(playlistID) -> list:
     except requests.exceptions.RequestException as e:
         raise e
     
-
-
 
 @task
 def extract_video_data(video_ids):
