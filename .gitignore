@@ -5,6 +5,9 @@ include/
 config/
 data/
 
+# tests
+tests/__pycache__
+
 # playground
 testy.py
 
