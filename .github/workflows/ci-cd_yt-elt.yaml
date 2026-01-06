@@ -68,8 +68,8 @@ jobs:
       METADATA_DATABASE_USERNAME: ${{ secrets.METADATA_DATABASE_USERNAME }}
       POSTGRES_CONN_HOST: ${{ secrets.POSTGRES_CONN_HOST }}
       POSTGRES_CONN_PORT: ${{ secrets.POSTGRES_CONN_PORT }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_CONN_PASSWORD }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_CONN_USERNAME }}
+      POSTGRES_CONN_PASSWORD: ${{ secrets.POSTGRES_CONN_PASSWORD }}
+      POSTGRES_CONN_USERNAME: ${{ secrets.POSTGRES_CONN_USERNAME }}
     steps: 
       - name: Checkout code
         uses: actions/checkout@v4
