@@ -19,13 +19,9 @@ def close_conn_cursor(conn, cur):
 def create_schema(schema):
 
     conn, cur = get_conn_cursor()
-
     schema_sql = f"CREATE SCHEMA IF NOT EXISTS {schema};"
-
     cur.execute(schema_sql)
-
     conn.commit()
-
     close_conn_cursor(conn, cur)
 
 
