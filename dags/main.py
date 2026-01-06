@@ -58,6 +58,10 @@ with DAG(
     schedule="0 14 * * *",
 ) as dag_produce:
     
+    """
+    DAG extracts data from YouTube API, process it and saves to JSON file.
+    """
+    
     #define task
     playlist_id = get_playlist_id()
     video_ids = get_video_ids(playlist_id)
@@ -82,6 +86,9 @@ with DAG(
     schedule=None,
 ) as dag_update:
     
+    """
+    DAG processes JSON file and insert data into both staging and core schemas."""
+    
     #define task
     update_staging = staging_table()
     update_core = core_table()
@@ -104,6 +111,10 @@ with DAG(
     catchup=False,                      # does not catchup dags from the past
     schedule=None,
 ) as dag_quality:
+    
+    """
+    DAG checks data quality using Soda SQL for both staging and core schemas.
+    """
     
     #define task
     soda_validate_staging = yt_elt_data_quality(stating_schema)
